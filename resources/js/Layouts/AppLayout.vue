@@ -120,7 +120,7 @@
                                         <div class="border-t border-gray-100"></div>
 
                                         <!-- Authentication -->
-                                        <form @submit.prevent="logout">
+                                        <form method="POST" @submit.prevent="logout">
                                             <jet-dropdown-link as="button">
                                                 Log Out
                                             </jet-dropdown-link>
@@ -176,7 +176,7 @@
                             </jet-responsive-nav-link>
 
                             <!-- Authentication -->
-                            <form method="POST" @submit.prevent="logout">
+                            <form method="POST" action="{{ route('logout') }}">
                                 <jet-responsive-nav-link as="button">
                                     Log Out
                                 </jet-responsive-nav-link>

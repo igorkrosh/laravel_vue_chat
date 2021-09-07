@@ -10,7 +10,9 @@
                 />
             </h2>
         </template>
-
+        <ul>
+            <li v-for="(user, index) in users" :key="index">{{user.name}}</li>
+        </ul>
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
@@ -19,6 +21,7 @@
                 </div>
             </div>
         </div>
+        
     </app-layout>
 </template>
 
@@ -40,10 +43,34 @@ export default defineComponent({
         return {
             chatRooms: [],
             currentRoom: [],
-            messages: []
+            messages: [],
+            users: null
+        }
+    },
+    watch: {
+        currentRoom(newValue, oldValue) {
+            if (oldValue.id)
+            {
+                this.disconnect(oldValue);
+            }
+            this.connect();
         }
     },
     methods: {
+        connect() {
+            if (this.currentRoom.id)
+            {
+                let vm = this;
+                this.getMessages();
+                window.Echo.private(`chat.${this.currentRoom.id}`)
+                .listen('NewChatMessage', e => {
+                    vm.getMessages();
+                })
+            }
+        },
+        disconnect(room) {
+            window.Echo.leave(`chat.${room.id}`)
+        },
         getRooms() {
             axios.get('/chat/rooms')
                 .then(response => {
@@ -56,7 +83,7 @@ export default defineComponent({
         },
         setRoom(room) {
             this.currentRoom = room;
-            this.getMessages();
+            
         },
         getMessages() {
             axios.get(`/chat/room/${this.currentRoom.id}/messages `)
@@ -70,6 +97,27 @@ export default defineComponent({
     },
     created() {
         this.getRooms();
+    },
+    mounted() {
+        /*
+        Echo.join('users')
+        .here((users) => {
+            this.users = users
+            console.log(users)
+        })
+        .joining((user) => {
+            this.users.push(user)
+        })
+        .leaving((user) => {
+            this.users.splice(this.users.indexOf(user), 1)
+        })
+        */
+       /*
+       Echo.channel('users')
+        .listen('ChatMessageWasReceived', (e) => {
+            console.log(e.user, e.chatMessage);
+        });
+        */
     }
 })
 </script>
